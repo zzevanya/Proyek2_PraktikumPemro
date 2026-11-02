@@ -5,6 +5,8 @@ from alat import Alat
 from enumKondisi import KondisiAlat
 
 class ItemPinjam:
+    HEADER = ["kode_alat", "sudah_kembali", "tanggal_kembali", "kondisi_kembali"]
+    
     def __init__(self, alat: Alat):
         alat.tandai_dipinjam()
         
@@ -50,3 +52,20 @@ class ItemPinjam:
         else:
             status = "Belum dikembalikan"
         return f"[{self._alat.kode_alat}] {self._alat.nama_alat} | {status}"
+    
+    def to_dict(self) -> dict:
+        return {
+            "kode_alat": self._alat.kode_alat,
+            "sudah_kembali": "1" if self._sudah_kembali else "0",
+            "tanggal_kembali": self._tanggal_kembali.isoformat() if self._tanggal_kembali else "",
+            "kondisi_kembali": self._kondisi_kembali.name if self._kondisi_kembali else "",
+        }
+        
+    @classmethod
+    def from_dict(cls, d: dict, alat: Alat) -> "ItemPinjam":
+        item = cls.__new__(cls)
+        item._alat = alat
+        item._sudah_kembali = d["sudah_kembali"] == "1"
+        item._tanggal_kembali = date.fromisoformat(d["tanggal_kembali"]) if d["tanggal_kembali"] else None
+        item._kondisi_kembali = KondisiAlat[d["kondisi_kembali"]] if d["kondisi_kembali"] else None
+        return item

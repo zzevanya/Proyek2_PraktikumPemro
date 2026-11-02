@@ -9,7 +9,7 @@ from mahasiswa import Mahasiswa
 
 class Transaksi:
     MAKS_HARI = 7
-    
+    HEADER = ["id_transaksi", "nim", "tanggal_pinjam", "batas_kembali", "status"]
     def __init__(
         self,
         id_transaksi : str,
@@ -18,6 +18,7 @@ class Transaksi:
         tanggal_pinjam: Optional[date] = None,
         lama_hari: int = MAKS_HARI,
     ):
+            
         if not id_transaksi.strip():
             raise ValueError("ID transaksi tidak boleh kosong.")
         if not mahasiswa.boleh_pinjam():
@@ -137,3 +138,23 @@ class Transaksi:
         ]
         baris += [f" - {item}" for item in self._daftar_item]
         return "\n".join(baris)
+    
+    def to_dict(self) -> dict:
+        return {
+            "id_transaksi": self._id_transaksi,
+            "nim": self._mahasiswa.nim,
+            "tanggal_pinjam": self._tanggal_pinjam.isoformat(),
+            "batas_kembali": self._batas_kembali.isoformat(),
+            "status": self._status.name,
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict, mahasiswa: Mahasiswa, daftar_item: list[ItemPinjam]) -> "Transaksi":
+        trx = cls.__new__(cls)
+        trx._id_transaksi = d["id_transaksi"]
+        trx._mahasiswa = mahasiswa
+        trx._daftar_item = daftar_item
+        trx._tanggal_pinjam = date.fromisoformat(d["tanggal_pinjam"])
+        trx._batas_kembali = date.fromisoformat(d["batas_kembali"])
+        trx._status = StatusTransaksi[d["status"]]
+        return trx

@@ -1,3 +1,11 @@
+import os
+import csv
+
+from alat import Alat
+from Kategori import Kategori
+from mahasiswa import Mahasiswa
+from transaksi import Transaksi
+from item_pinjam import ItemPinjam
 from logAktivitas import LogAktivitas
 from mahasiswa_manager import MahasiswaManager
 from alatManager import AlatManager
@@ -5,8 +13,12 @@ from transaksi_manager import TransaksiManager
 from enumKondisi import KondisiAlat
 
 class MenuApp:
-    def __init__(self):
-        self._log_aktivitas = LogAktivitas()
+    def __init__(self, folder_data: str = None):
+        if folder_data is None:         #kode baru
+            folder_data = os.path.join(os.path.dirname(od.path.abspath(__file__)), "data")
+        self._folder = folder_data
+        os.makedirs(self._folder, exist_ok=True)
+        self._log_aktivitas = LogAktivitas(os.path.join(self._folder, "log.txt"))
         self._mahasiswa_manager = MahasiswaManager(logger=self._log_aktivitas)
         self._alat_manager = AlatManager(logger=self._log_aktivitas)
         self._transaksi_manager = TransaksiManager(
@@ -14,8 +26,49 @@ class MenuApp:
             self._alat_manager,
             logger=self._log_aktivitas
         )
+        self._muat_semua()      #kode baru
         
+        #Kode Baru
+    def _baca_csv(self, nama_file):
+        try:
+            with open(os.path.join(self._folder, nama_file), "r", newline="", encoding="utf-8") as f:
+                return list(csv.DictReader(f))
+        except FileNotFoundError:
+            return []
+        
+    def _tulis_csv(self, nama_file, header, data):
+        path = os.path.join(self._folder, nama_file)
+        with open(path + ".tmp", "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames= header)
+            writer.writeheader()
+            writer.writerows(data)
+        os.replace(path + ".tmp", path)
+        
+    def _muat_semua(self):
+        self._alat_manager.muat(
+            self._baca_csv("kategori.csv"),
+            self._baca_csv("alat.csv"),
+        )
+        self._mahasiswa_manager.muat(self._baca_csv("mahasiswa.csv"))
+        self._transaksi_manager.muat(
+            self._baca_csv("transaksi.csv"),
+            self._baca_csv("item_pinjam.csv"),
+        )
+        
+    def _simpan_semua(self:)
+        self._tulis_csv("kategori.csv", Kategori.HEADER, self._alat_manager.data_kategori())
+        self._tulis_csv("alat.csv", Alat.HEADER, self._alat_manager.data_alat())
+        self._tulis_csv("mahasiswa.csv", Mahasiswa.HEADER, self._mahasiswa_manager.data_mahasiswa())
+        self._tulis_csv("transaksi.csv", Transaksi.HEADER, self._transaksi_manager.data_transaksi())
+        self._tulis_csv("item_pinjam.csv", ["id_transaksi"] + ItemPinjam.HEADER, self._transaksi_manager.data_item())
+
     def jalankan(self):
+        try:
+            self._loop_utama()
+        finally:
+            self._simpan_semua()
+    
+    def _loop_utama(self):
         self._log_aktivitas.catat("Sistem Laboratorium Berhasil Dijalankan")
         while True:
             print("\n=== SISTEM PEMINJAMAN ALAT LAB ===")

@@ -30,13 +30,11 @@ class MahasiswaManager:
         return True
 
     def hapus_mahasiswa(self, nim: str) -> bool:
-        """Menolak penghapusan jika mahasiswa masih memiliki transaksi aktif."""
         mhs = self.get_mahasiswa(nim)
 
         if mhs is None:
             return False
 
-        # Ini pemeriksaan utama untuk Skenario 6.
         if mhs.jumlah_trx_aktif() > 0:
             return False
 
@@ -54,3 +52,17 @@ class MahasiswaManager:
 
     def get_mahasiswa(self, nim: str):
         return self._data_mahasiswa.get(nim)
+    
+    #Kode baru
+    def data_mahasiswa(self) -> list[dict]:
+        return [m.to_dict() for m in self._data_mahasiswa.values()]
+    
+    def muat(self, data:list[dict]) -> None:
+        self._data_mahasiswa = {}
+        for d in data:
+            try:
+                mhs = Mahasiswa.from_dict(d)
+            except KeyError as e:
+                print(f"Peringatan: baris mahasiswa dilewati (kolom {e} tidak ada)")
+                continue
+            self._data_mahasiswa[mhs.nim] = mhs

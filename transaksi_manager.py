@@ -3,7 +3,7 @@ from mahasiswa_manager import MahasiswaManager
 from alatManager import AlatManager
 from logAktivitas import LogAktivitas
 from enumKondisi import KondisiAlat
-
+from item_pinnjam import ItemPinjam
 
 class TransaksiManager:
     MAKS_TRANSAKSI = 2
@@ -23,7 +23,6 @@ class TransaksiManager:
     def buat_transaksi(
         self, id_trx: str, nim: str, daftar_kode_alat: list[str]
     ) -> bool:
-        # Tolak ID transaksi yang kosong atau sudah digunakan.
         if not id_trx.strip() or id_trx in self._data_transaksi:
             return False
 
@@ -34,7 +33,6 @@ class TransaksiManager:
         if not daftar_kode_alat:
             return False
 
-        # Validasi seluruh alat terlebih dahulu agar transaksi tidak dibuat separuh.
         daftar_alat = []
         kode_dilihat = set()
 
@@ -50,8 +48,6 @@ class TransaksiManager:
             daftar_alat.append(alat)
 
         try:
-            # Constructor Transaksi membutuhkan ID, mahasiswa, dan daftar objek alat.
-            # Transaksi sendiri yang mencatat ID aktif pada objek Mahasiswa.
             trx = Transaksi(id_trx, mhs, daftar_alat)
         except ValueError:
             return False
@@ -73,7 +69,6 @@ class TransaksiManager:
         except ValueError:
             return False
 
-        # Transaksi.perbarui_status() menghapus ID aktif jika semua item sudah kembali.
         if self._logger:
             self._logger.catat(
                 f"Pengembalian Alat: {kode_alat} pada Transaksi {id_trx}"
@@ -104,3 +99,50 @@ class TransaksiManager:
             if transaksi.is_aktif():
                 alat_list.extend(transaksi.item_belum_kembali())
         return alat_list
+    
+    #kode baru
+    def data_transaksi(self) -> list[dict]:
+        return [t.to_dict() for t in self._data_transaksi.values()]
+    
+    def data_item(self) -> list[dict]:
+        baris = []
+        for trx in self._data_transaksi.values():
+            for item in trx.daftar_item:
+                d = item.to_dict()
+                d["id_transaksi"] = trx.id_transaksi
+                baris.append(d)
+        return baris
+    
+    def muat(self, data_transaksi: list[dict], data_item: list[dict]) -> None:
+        self._data_transaksi = {}
+        
+        item_per_trx: dict[str, list[dict]] = {}
+        for d in data_item:
+            item_per_trx.setdefault(d.get("id_transaksi", ""), []).append(d)
+            
+        for d in data_transaksi:
+            try:
+                mhs = self._mahasiswa_manager.get_mahasiswa(d["nim"])
+                if mhs is None:
+                    raise ValueError(f"Mahasiswa {d['nim']} tidak ditemukan")
+                
+                daftar_item = []
+                for di in item_per_trx.get(d["id_transaksi"], []):
+                    alat = self._alat_manager.cari_alat(di["kode_alat"])
+                    if alat is None:
+                        raise ValueError(f"alat {di['kode_alat']} tidak ditemukan")
+                    daftar_item.append(ItemPinja,.from_dict(di, alat))
+                if not daftar_item:
+                    raise ValueError("transaksi tanpa item")
+                
+                trx = Transaksi.fron_dict(d, mhs, daftar_item)
+                if trx.is_aktif():
+                    mhs.tambah_trx_aktif(trx.id_transaksi)
+            except (KeyError, ValueError) as e:
+                print(f"Peringatan: transaksi {d.get('id_transaksi', '?')} dilewari ({e})")
+                continue
+            
+            if trx.is_aktif():
+                for item in trx.item_belum_kembali():
+                    item.alat.tandai_pinjam()
+            self._data_transaksi[trx.id_transaksi] = trx

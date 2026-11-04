@@ -38,16 +38,18 @@ class AlatManager:
             )
 
         return True
-    
+
     def tambah_kategori(self, id_kategori: str, nama_kategori: str) -> bool:
         if id_kategori in self._data_kategori:
             return False
-        
+
         kategori_baru = Kategori(id_kategori, nama_kategori)
         self._data_kategori[id_kategori] = kategori_baru
-        
+
         if self._logger:
-            self._logger.catat(f"Kategori {nama_kategori} '{id_kategori}' berhasil ditambahkan.")
+            self._logger.catat(
+                f"Kategori {nama_kategori} '{id_kategori}' berhasil ditambahkan."
+            )
         return True
 
     def edit_alat(self, kode_alat, nama_baru, kategori_baru):
@@ -84,7 +86,7 @@ class AlatManager:
 
         if not alat.tersedia and not alat.is_rusak():
             return False
-        
+
         if getattr(alat, "_sedang_dipinjam", False):
             return False
 
@@ -100,7 +102,7 @@ class AlatManager:
 
     def get_alat_by_kode(self, kode_alat):
         return self.cari_alat(kode_alat)
-    
+
     def get_kategori(self, id_kategori: str):
         return self._data_kategori.get(id_kategori, None)
 
@@ -122,7 +124,7 @@ class AlatManager:
         return hasil
 
     def tampilkan_kategori_alat(self):
-        return list(Kategori)
+        return list(self._data_kategori.values())
 
     def cari_alat_berdasarkan_kategori(self, kategori):
         hasil = []
@@ -178,3 +180,46 @@ class AlatManager:
             )
 
         return True
+
+    def data_kategori(self) -> list[dict]:
+        return [k.to_dict() for k in self._data_kategori.values()]
+
+    def data_alat(self) -> list[dict]:
+        return [a.to_dict() for a in self._data_alat.values()]
+
+    def muat(
+        self,
+        data_kategori: list[dict],
+        data_alat: list[dict]
+    ) -> None:
+        self._data_kategori = {}
+        self._data_alat = {}
+
+        for d in data_kategori:
+            try:
+                kat = Kategori.from_dict(d)
+            except KeyError as e:
+                print(
+                    f"Peringatan: baris kategori dilewati "
+                    f"(kolom {e} tidak ada)"
+                )
+                continue
+
+            self._data_kategori[kat.id_kategori] = kat
+
+        for d in data_alat:
+            try:
+                kat = self._data_kategori.get(d["id_kategori"])
+
+                if kat is None:
+                    raise ValueError(
+                        f"kategori {d['id_kategori']} tidak ditemukan"
+                    )
+
+                alat = Alat.from_dict(d, kat)
+
+            except (KeyError, ValueError) as e:
+                print(f"Peringatan: baris alat dilewati ({e})")
+                continue
+
+            self._data_alat[alat.kode_alat] = alat

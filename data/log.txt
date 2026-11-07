@@ -1,0 +1,15 @@
+[2026-11-07 08:43] Sistem Laboratorium Berhasil Dijalankan
+[2026-11-07 08:43] Tambah Mahasiswa: ZEFA (K3525078)
+[2026-11-07 08:44] Kategori Jaringan 'K01' berhasil ditambahkan.
+[2026-11-07 08:44] Alat Mikrotik (J01) ditambahkan
+[2026-11-07 09:05] Sistem Laboratorium Berhasil Dijalankan
+[2026-11-07 09:07] Tambah Mahasiswa: ZEFA (K3525078)
+[2026-11-07 09:17] Sistem Laboratorium Berhasil Dijalankan
+[2026-11-07 09:17] Edit Mahasiswa: Zahra Ainiyyah Zefania (K3525078)
+[2026-11-07 09:18] Kategori JARINGAN 'K01' berhasil ditambahkan.
+[2026-11-07 09:18] Alat MIKROTIK (J01) ditambahkan
+[2026-11-07 09:20] Sistem Laboratorium Berhasil Dijalankan
+[2026-11-07 09:20] Sistem Laboratorium Berhasil Dijalankan
+[2026-11-07 09:22] Alat Kabel LAN (J02) ditambahkan
+[2026-11-07 09:23] Buat Transaksi: ID 1 oleh NIM K3525078
+[2026-11-07 09:24] Pengembalian Alat: J02 pada Transaksi 1

@@ -3,7 +3,7 @@ from mahasiswa_manager import MahasiswaManager
 from alatManager import AlatManager
 from logAktivitas import LogAktivitas
 from enumKondisi import KondisiAlat
-from item_pinnjam import ItemPinjam
+from item_pinjam import ItemPinjam
 
 class TransaksiManager:
     MAKS_TRANSAKSI = 2
@@ -131,7 +131,7 @@ class TransaksiManager:
                     alat = self._alat_manager.cari_alat(di["kode_alat"])
                     if alat is None:
                         raise ValueError(f"alat {di['kode_alat']} tidak ditemukan")
-                    daftar_item.append(ItemPinja,.from_dict(di, alat))
+                    daftar_item.append(ItemPinjam.from_dict(di, alat))
                 if not daftar_item:
                     raise ValueError("transaksi tanpa item")
                 

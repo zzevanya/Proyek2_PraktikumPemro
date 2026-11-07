@@ -15,7 +15,7 @@ from enumKondisi import KondisiAlat
 class MenuApp:
     def __init__(self, folder_data: str = None):
         if folder_data is None:         #kode baru
-            folder_data = os.path.join(os.path.dirname(od.path.abspath(__file__)), "data")
+            folder_data = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
         self._folder = folder_data
         os.makedirs(self._folder, exist_ok=True)
         self._log_aktivitas = LogAktivitas(os.path.join(self._folder, "log.txt"))
@@ -55,7 +55,7 @@ class MenuApp:
             self._baca_csv("item_pinjam.csv"),
         )
         
-    def _simpan_semua(self:)
+    def _simpan_semua(self):
         self._tulis_csv("kategori.csv", Kategori.HEADER, self._alat_manager.data_kategori())
         self._tulis_csv("alat.csv", Alat.HEADER, self._alat_manager.data_alat())
         self._tulis_csv("mahasiswa.csv", Mahasiswa.HEADER, self._mahasiswa_manager.data_mahasiswa())
@@ -163,7 +163,7 @@ class MenuApp:
             print("2. Tambah Alat")
             print("3. Edit Alat")
             print("4. Hapus Alat")
-            print("5. Cari Alat (Kode/ Nama/ Kategori)")
+            print("5. Cari Alat (Kode)")
             print("6. Lihat Alat Tersedia")
             print("7. Lihat Alat Dipinjam")
             print("8. Lihat Alat Rusak")

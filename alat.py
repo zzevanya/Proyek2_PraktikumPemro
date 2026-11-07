@@ -3,6 +3,8 @@ from Kategori import Kategori
 
 
 class Alat:
+    HEADER = ["kode_alat", "nama_alat", "id_kategori", "kondisi"]
+    
     def __init__(
         self,
         kode_alat: str,
@@ -64,7 +66,7 @@ class Alat:
 
     def is_rusak(self) -> bool:
         """+ is_rusak(): bool: Mengecek apakah kondisi alat rusak (ringan atau berat)."""
-        return self._kondisi in (KondisiAlat.RUSAK_RINGAN, KondisiAlat.RUSAK_BERAT)
+        return self._kondisi in (KondisiAlat. RUSAK_RINGAN, KondisiAlat.RUSAK_BERAT)
 
     def ubah_data(self, nama: str, kat: Kategori) -> None:
         """+ ubah_data(nama, kat): Memperbarui nama dan kategori alat."""
@@ -82,3 +84,16 @@ class Alat:
         kat_val = self._kategori.value if isinstance(self._kategori, Kategori) else str(self._kategori)
         kon_val = self._kondisi.value if isinstance(self._kondisi, KondisiAlat) else str(self._kondisi)
         return f"[{self._kode_alat}] {self._nama_alat} | Kategori: {kat_val} | Kondisi: {kon_val} | Status: {status_teks}"
+    
+    def to_dict(self) -> dict:
+        # Status "sedang dipinjam" dipulihkan dari data transaksi, jadi tidak disimpan di sini.
+        return {
+            "kode_alat": self._kode_alat,
+            "nama_alat": self._nama_alat,
+            "id_kategori": self._kategori.id_kategori,
+            "kondisi": self._kondisi.name,
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict, kategori: Kategori) -> "Alat":
+        return cls(d["kode_alat"], d["nama_alat"], kategori, KondisiAlat[d["kondisi"]])

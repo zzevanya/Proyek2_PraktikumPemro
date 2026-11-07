@@ -1,5 +1,6 @@
 class Mahasiswa:
     MAKS_TRANSAKSI = 2
+    HEADER = ["nim", "nama", "no_hp"]
 
     def __init__(self, nim: str, nama: str, no_hp: str):
         self._nim: str = nim
@@ -74,3 +75,10 @@ class Mahasiswa:
             f"[{self._nim}] {self._nama} | HP: {self._no_hp} | "
             f"{status} ({self.jumlah_trx_aktif()} transaksi)"
         )
+        
+    def to_dict(self) -> dict:
+        return {"nim": self._nim, "nama": self._nama, "no_hp": self._no_hp}
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Mahasiswa":
+        return cls(d["nim"], d["nama"], d["no_hp"])

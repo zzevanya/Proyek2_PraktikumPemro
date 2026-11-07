@@ -135,7 +135,7 @@ class TransaksiManager:
                 if not daftar_item:
                     raise ValueError("transaksi tanpa item")
                 
-                trx = Transaksi.fron_dict(d, mhs, daftar_item)
+                trx = Transaksi.from_dict(d, mhs, daftar_item)
                 if trx.is_aktif():
                     mhs.tambah_trx_aktif(trx.id_transaksi)
             except (KeyError, ValueError) as e:
